@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Secure Note-Taking App</title> <!-- The title of the web page -->
+
+    <script>
+        // Base URL for the backend API. Update this if the backend runs on a different port.
+        const baseUrl = "http://localhost:5159";
+
+        // Function to load all notes from the backend and display them on the page
+        async function loadNotes() {
+            const response = await fetch(`${baseUrl}/api/notes`); // Fetch notes from the API
+            const notes = await response.json(); // Parse the JSON response
+            // Populate the notes list with each note and a delete button
+            document.getElementById("notes").innerHTML = notes.map(n => 
+                `<li>${n.content} <button onclick="deleteNote(${n.id})">Delete</button></li>`).join("");
+        }
+
+        // Function to add a new note by sending a POST request to the backend
+        async function addNote() {
+            const content = document.getElementById("noteInput").value; // Get the note content from the input field
+            await fetch(`${baseUrl}/api/notes`, {
+                method: "POST", // HTTP POST method to create a new note
+                headers: {"Content-Type": "application/json"}, // Set the request content type to JSON
+                body: JSON.stringify({content}) // Send the note content in the request body
+            });
+            loadNotes(); // Reload the notes list after adding the new note
+        }
+
+        // Function to delete a note by sending a DELETE request to the backend
+        async function deleteNote(id) {
+            await fetch(`${baseUrl}/api/notes/${id}`, {method: "DELETE"}); // Send a DELETE request with the note ID
+            loadNotes(); // Reload the notes list after deleting the note
+        }
+
+        // Load the notes when the page finishes loading
+        window.onload = loadNotes;
+    </script>
+</head>
+<body>
+    <h1>Secure Note-Taking App</h1> <!-- Page heading -->
+
+    <!-- Input field for entering a new note -->
+    <input id="noteInput" placeholder="Write a note">
+
+    <!-- Button to save the new note -->
+    <button onclick="addNote()">Save</button>
+
+    <!-- Unordered list to display the notes -->
+    <ul id="notes"></ul>
+</body>
+</html>
